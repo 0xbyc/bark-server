@@ -37,10 +37,7 @@ jobs:
         with:
           context: .
           file: ./deploy/Dockerfile
-          platforms:  |
-            linux/arm
-            linux/arm64
-            linux/amd64
+          platforms: linux/amd64
           tags: |
             serverless-image/bark-server:latest
             serverless-image/bark-server:${{ steps.vars.outputs.build_version }}
