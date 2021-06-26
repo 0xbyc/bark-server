@@ -17,6 +17,7 @@ jobs:
       -
         name: Test
         run: sudo docker login --username=${{ secrets.TENCENT_DOCKER_USERNAME }} ccr.ccs.tencentyun.com --password ${{ secrets.TENCENT_DOCKER_PASSWD }}
+        
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
