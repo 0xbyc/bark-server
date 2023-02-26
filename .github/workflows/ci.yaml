@@ -1,12 +1,9 @@
 name: Build And Push
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-
+    tags:        
+      - '*' 
+      
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -29,7 +26,7 @@ jobs:
           password: ${{ secrets.TENCENT_DOCKER_PASSWD }}
       - name: Environment Variable
         id: vars
-        run: echo "::set-output name=build_version::$(cat ./version)"
+        run: echo "::set-output name=build_version::$(git describe --tags)"
       -
         name: Build and push
         id: docker_build

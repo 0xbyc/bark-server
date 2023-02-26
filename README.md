@@ -16,8 +16,9 @@
          * [For Developer](#for-developer)
          * [Nginx Proxy](#nginx-proxy)
       * [API V2](#api-v2)
-      * [Other Docs](#other-docs)
+      * [Other](#other)
          * [中文:](#中文)
+         * [Markdown Support](#markdown-support)         
       * [Contributing to bark-server](#contributing-to-bark-server)
          * [Development environment](#development-environment)
       * [Update](#update)
@@ -27,7 +28,7 @@
 
 ### For Docker User
 
-![Docker Automated build](https://img.shields.io/docker/automated/finab/bark-server.svg) ![MicroBadger Size](https://img.shields.io/microbadger/image-size/finab/bark-server.svg) ![MicroBadger Layers](https://img.shields.io/microbadger/layers/finab/bark-server.svg)
+![Docker Automated build](https://img.shields.io/docker/automated/finab/bark-server.svg) ![Image Size](https://img.shields.io/docker/image-size/finab/bark-server?sort=date) ![License](https://img.shields.io/github/license/finb/bark-server)
 
 The docker image is already available, you can use the following command to run the bark server:
 
@@ -56,20 +57,23 @@ docker-compose up -d
 
 Developers can compile this project by themselves, and the dependencies required for compilation:
 
-- Golang 1.16+
+- Golang 1.18+
 - Go Mod Enabled(env `GO111MODULE=on`)
 - Go Mod Proxy Enabled(env `GOPROXY=https://goproxy.cn`)
-- `make` Installed
+- [go-task](https://taskfile.dev/installation/) Installed
 
 Run the following command to compile this project:
 
 ```sh
 # Cross compile all platforms
-make
+task
 
-# Or install into the local GOPATH
-make install
+# Compile the specified platform (please refer to Taskfile.yaml)
+task linux_amd64
+task linux_amd64_v3
 ```
+
+**Note: The linux amd64 v3 architecture was added in go 1.18, see [https://github.com/golang/go/wiki/MinimumRequirements#amd64](https://github.com/golang/go/wiki/MinimumRequirements#amd64)**
 
 ### Nginx Proxy
 
@@ -135,16 +139,23 @@ server {
 }
 ```
 
+### Use MySQL instead of Bbolt
+
+Just run the server with `-dsn=user:pass@tcp(mysql_host)/bark`, it will use MySQL instead of file database Bbolt
+
 ## API V2
 
 Please read [API_V2.md](docs/API_V2.md).
 
-## Other Docs
+## Other
 
 ### 中文:
 
-- [https://day.app/2018/06/bark-server-document/](https://day.app/2018/06/bark-server-document/)
-  
+- [https://day.app/2018/06/bark-server-document](https://day.app/2018/06/bark-server-document)
+
+### Markdown support:
+
+- [https://github.com/adams549659584/bark-server](https://github.com/adams549659584/bark-server)
 
 ## Contributing to bark-server
 

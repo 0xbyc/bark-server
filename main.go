@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"reflect"
 	"syscall"
 	"time"
+
+	"github.com/finb/bark-server/v2/database"
 
 	jsoniter "github.com/json-iterator/go"
 
@@ -21,6 +24,8 @@ var (
 	commitID  string
 )
 
+var db database.Database
+
 func main() {
 	app := &cli.App{
 		Name:    "bark-server",
@@ -34,10 +39,28 @@ func main() {
 				Value:   "0.0.0.0:8080",
 			},
 			&cli.StringFlag{
+				Name:    "url-prefix",
+				Usage:   "Serve URL Prefix",
+				EnvVars: []string{"BARK_SERVER_URL_PREFIX"},
+				Value:   "/",
+			},
+			&cli.StringFlag{
 				Name:    "data",
 				Usage:   "Server data storage dir",
 				EnvVars: []string{"BARK_SERVER_DATA_DIR"},
 				Value:   "/data",
+			},
+			&cli.StringFlag{
+				Name:    "dsn",
+				Usage:   "MySQL DSN user:pass@tcp(host)/dbname",
+				EnvVars: []string{"BARK_SERVER_DSN"},
+				Value:   "",
+			},
+			&cli.BoolFlag{
+				Name:    "serverless",
+				Usage:   "serverless mode",
+				EnvVars: []string{"BARK_SERVER_SERVERLESS"},
+				Value:   false,
 			},
 			&cli.StringFlag{
 				Name:    "cert",
@@ -132,6 +155,7 @@ func main() {
 				ProxyHeader:       c.String("proxy-header"),
 				ReduceMemoryUsage: c.Bool("reduce-memory-usage"),
 				JSONEncoder:       jsoniter.Marshal,
+				Network: "tcp",
 				ErrorHandler: func(c *fiber.Ctx, err error) error {
 					code := fiber.StatusInternalServerError
 					if e, ok := err.(*fiber.Error); ok {
@@ -145,9 +169,18 @@ func main() {
 				},
 			})
 
-			routerAuth(c.String("user"), c.String("password"), fiberApp)
-			routerSetup(fiberApp)
-			bboltSetup(c.String("data"))
+			fiberRouter := fiberApp.Group(c.String("url-prefix"))
+			routerAuth(c.String("user"), c.String("password"), fiberRouter)
+			routerSetup(fiberRouter)
+
+			if serverless := c.Bool("serverless"); serverless {
+				// use system environment variable.
+				db = database.NewEnvBase()
+			} else if dsn := c.String("dsn"); dsn != "" {
+				db = database.NewMySQL(dsn)
+			} else {
+				db = database.NewBboltdb(c.String("data"))
+			}
 
 			go func() {
 				sigs := make(chan os.Signal)
@@ -163,7 +196,7 @@ func main() {
 				}
 			}()
 
-			logger.Infof("Bark Server Listen at: %s", c.String("addr"))
+			logger.Infof("Bark Server Listen at: %s , Database: %s", c.String("addr"), reflect.TypeOf(db))
 			if cert, key := c.String("cert"), c.String("key"); cert != "" && key != "" {
 				return fiberApp.ListenTLS(c.String("addr"), cert, key)
 			}

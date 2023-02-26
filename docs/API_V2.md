@@ -11,12 +11,29 @@ the V2 version.**
         + [python](#python)
         + [java](#java)
         + [nodejs](#nodejs)
+        + [php](#php)
     * [Misc](#misc)
         + [Ping](#ping)
         + [Healthz](#healthz)
         + [Info](#info)
     
 ## Push
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| title | string | Notification title (font size would be larger than the body) |
+| body  | string | Notification content |
+| category | string | Reserved field, no use yet |
+| device_key | string | The key for each device |
+| level (optional) | string | `'active'`, `'timeSensitive'`, or `'passive'` |
+| badge (optional) | integer | The number displayed next to App icon ([Apple Developer](https://developer.apple.com/documentation/usernotifications/unnotificationcontent/1649864-badge)) |
+| automaticallyCopy (optional) | string | Must be `1` |
+| copy (optional) | string |  The value to be copied |
+| sound (optional) | string | Value from [here](https://github.com/Finb/Bark/tree/master/Sounds) |
+| icon (optional) | string | An url to the icon, available only on iOS 15 or later |
+| group (optional) | string | The group of the notification |
+| isArchive (optional) | string | Value must be `1`. Whether or not should be archived by the app |
+| url (optional) | string | Url that will jump when click notification |
 
 ### curl
 
@@ -25,13 +42,14 @@ curl -X "POST" "http://127.0.0.1:8080/push" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -d $'{
   "body": "Test Bark Server",
-  "device_key": "nysrshcqielvoxsa",
+  "device_key": "ynJ5Ft4atkMkWeo2PAvFhF",
   "title": "bleem",
-  "ext_params": {
-    "url": "https://mritd.com"
-  },
-  "category": "category",
-  "sound": "minuet.caf"
+  "badge": 1,
+  "category": "myNotificationCategory",
+  "sound": "minuet.caf",
+  "icon": "https://day.app/assets/images/avatar.jpg",
+  "group": "test",
+  "url": "https://mritd.com"
 }'
 ```
 
@@ -50,7 +68,7 @@ import (
 func sendPush() {
 	// push (POST http://127.0.0.1:8080/push)
 
-	json := []byte(`{"body": "Test Bark Server","device_key": "nysrshcqielvoxsa","title": "bleem","ext_params": {"url": "https://mritd.com"},"category": "category","sound": "minuet.caf"}`)
+	json := []byte(`{"body": "Test Bark Server","device_key": "nysrshcqielvoxsa","title": "bleem", "badge": 1, "icon": "https://day.app/assets/images/avatar.jpg", "group": "test", "url": "https://mritd.com","category": "myNotificationCategory","sound": "minuet.caf"}`)
 	body := bytes.NewBuffer(json)
 
 	// Create client
@@ -106,11 +124,12 @@ def send_request():
                 "body": "Test Bark Server",
                 "device_key": "nysrshcqielvoxsa",
                 "title": "bleem",
-                "ext_params": {
-                    "url": "https://mritd.com"
-                },
-                "category": "category",
-                "sound": "minuet.caf"
+                "category": "myNotificationCategory",
+                "sound": "minuet.caf",
+                "badge": 1,
+                "icon": "https://day.app/assets/images/avatar.jpg",
+                "group": "test",
+                "url": "https://mritd.com"
             })
         )
         print('Response HTTP Status Code: {status_code}'.format(
@@ -147,7 +166,7 @@ public class SendRequest
       .addHeader("Content-Type", "application/json; charset=utf-8")
       
       // Add body
-      .bodyString("{\"body\": \"Test Bark Server\",\"device_key\": \"nysrshcqielvoxsa\",\"title\": \"bleem\",\"ext_params\": {\"url\": \"https://mritd.com\"},\"category\": \"category\",\"sound\": \"minuet.caf\"}", ContentType.APPLICATION_JSON)
+      .bodyString("{\"body\": \"Test Bark Server\",\"device_key\": \"nysrshcqielvoxsa\",\"title\": \"bleem\",\"url\": \"https://mritd.com\", \"group\": \"test\",\"category\": \"myNotificationCategory\",\"sound\": \"minuet.caf\"}", ContentType.APPLICATION_JSON)
       
       // Fetch request and return content
       .execute().returnContent();
@@ -204,7 +223,7 @@ public class SendRequest
     .on('error', (error) => {
         callback(error);
     });
-    request.write("{\"device_key\":\"nysrshcqielvoxsa\",\"body\":\"Test Bark Server\",\"title\":\"bleem\",\"sound\":\"minuet.caf\",\"category\":\"category\",\"ext_params\":{\"url\":\"https://mritd.com\"}}")
+    request.write("{\"device_key\":\"nysrshcqielvoxsa\",\"body\":\"Test Bark Server\",\"title\":\"bleem\",\"sound\":\"minuet.caf\",\"category\":\"myNotificationCategory\",\"url\":\"https://mritd.com\", \"group\":\"test\"}")
     request.end();
     
 
@@ -214,6 +233,33 @@ public class SendRequest
     console.log('HEADERS:', JSON.stringify(headers));
     console.log('BODY:', body);
 });
+```
+
+### php
+
+```php
+$curl = curl_init();
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'http://127.0.0.1:8080/push',
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS => '{
+  "body": "Test Bark Server",
+  "device_key": "ynJ5Ft4atkMkWeo2PAvFhF",
+  "title": "bleem",
+  "badge": 1,
+  "category": "myNotificationCategory",
+  "sound": "minuet.caf",
+  "icon": "https://day.app/assets/images/avatar.jpg",
+  "group": "test",
+  "url": "https://mritd.com"
+}',
+    CURLOPT_HTTPHEADER => [
+        'Content-Type: application/json; charset=utf-8',
+    ],
+]);
+$response = curl_exec($curl);
+curl_close($curl);
+echo $response;
 ```
 
 ## Misc
